@@ -5,7 +5,7 @@ from pathlib import Path
 import torch.utils.checkpoint
 import itertools
 from accelerate import Accelerator
-from diffusers import StableDiffusionPipeline
+from diffusers import StableDiffusionPipeline, AutoPipelineForText2Image, StableDiffusionXLControlNetPipeline, ControlNetModel
 import prompt_dataset
 import utils
 from inet_classes import IDX2NAME as IDX2NAME_INET
@@ -383,23 +383,35 @@ def train(config: RunConfig):
                                     print(
                                         f"Saved the new discriminative class token pipeline of {class_name} to pipeline_{token_path}"
                                     )
-                                    if config.sd_2_1:
-                                        pretrained_model_name_or_path = (
-                                            "stabilityai/stable-diffusion-2-1-base"
-                                        )
+                                    if config.is_controlnet:
+                                        # initialize the models and pipeline
+                                        controlnet = ControlNetModel.from_pretrained(
+                                            config.controlnet_model_path, torch_dtype=torch.float32
+                                        ).to(config.device)
+                                        # vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float32)
+                                        pipeline = StableDiffusionXLControlNetPipeline.from_pretrained(
+                                            config.face_model_path, controlnet=controlnet, torch_dtype=torch.float32, num_inference_steps=config.diffusion_steps
+                                        ).to(config.device)
+                                        pipeline.enable_model_cpu_offload()
+        
                                     else:
-                                        pretrained_model_name_or_path = (
-                                            "CompVis/stable-diffusion-v1-4"
+                                        if config.sd_2_1:
+                                            pretrained_model_name_or_path = (
+                                                "stabilityai/stable-diffusion-2-1-base"
+                                            )
+                                        else:
+                                            pretrained_model_name_or_path = (
+                                                "CompVis/stable-diffusion-v1-4"
+                                            )
+                                        pipeline = StableDiffusionPipeline.from_pretrained(
+                                            pretrained_model_name_or_path,
+                                            text_encoder=accelerator.unwrap_model(
+                                                text_encoder
+                                            ),
+                                            vae=vae,
+                                            unet=unet,
+                                            tokenizer=tokenizer,
                                         )
-                                    pipeline = StableDiffusionPipeline.from_pretrained(
-                                        pretrained_model_name_or_path,
-                                        text_encoder=accelerator.unwrap_model(
-                                            text_encoder
-                                        ),
-                                        vae=vae,
-                                        unet=unet,
-                                        tokenizer=tokenizer,
-                                    )
                                     pipeline.save_pretrained(f"pipeline_{token_path}")
                             else:
                                 current_early_stopping -= 1
@@ -436,7 +448,10 @@ def evaluate(config: RunConfig):
     token_dir_path = f"token/{class_name}"
     Path(token_dir_path).mkdir(parents=True, exist_ok=True)
     pipe_path = f"pipeline_{token_dir_path}/{exp_identifier}_{class_name}"
-    pipe = StableDiffusionPipeline.from_pretrained(pipe_path).to(config.device)
+    if  config.is_controlnet:
+        pipe = StableDiffusionXLControlNetPipeline..from_pretrained(pipe_path).to(config.device)
+    else:
+        pipe = StableDiffusionPipeline.from_pretrained(pipe_path).to(config.device)
 
     tokens_to_try = [config.placeholder_token]
     # Create eval dir
@@ -473,7 +488,12 @@ def evaluate(config: RunConfig):
                 device=config.device
             )  # Seed generator to create the inital latent noise
             generator.manual_seed(seed)
-            image_out = pipe(prompt, output_type="pt", generator=generator)[0]
+            if  config.is_controlnet:
+                conditioning_image = utils.load_conditioning_image(config)
+                # print(f"Running ControlNet with prompt: {prompt}")
+                image_out = pipe(prompt, output_type="pt",controlnet_conditioning_scale=config.controlnet_conditioning_scale, image=conditioning_image,  generator=generator)[0]
+            else:
+                image_out = pipe(prompt, output_type="pt", generator=generator)[0]
             image = utils.transform_img_tensor(image_out, config)
 
             output = classification_model(image).logits
@@ -501,7 +521,7 @@ def evaluate(config: RunConfig):
             f"-----------------------Accuracy {descriptive_token} {acc}-----------------------------"
         )
 
-
+   
 if __name__ == "__main__":
     config = pyrallis.parse(config_class=RunConfig)
 
@@ -510,3 +530,7 @@ if __name__ == "__main__":
         train(config)
     if config.evaluate:
         evaluate(config)
+    if config.experiment:
+        run_experiments(config)
+    if config.evaluate_experiment:
+        evaluate_experiments(config)
