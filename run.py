@@ -449,7 +449,7 @@ def evaluate(config: RunConfig):
     Path(token_dir_path).mkdir(parents=True, exist_ok=True)
     pipe_path = f"pipeline_{token_dir_path}/{exp_identifier}_{class_name}"
     if  config.is_controlnet:
-        pipe = StableDiffusionXLControlNetPipeline..from_pretrained(pipe_path).to(config.device)
+        pipe = StableDiffusionXLControlNetPipeline.from_pretrained(pipe_path).to(config.device)
     else:
         pipe = StableDiffusionPipeline.from_pretrained(pipe_path).to(config.device)
 
