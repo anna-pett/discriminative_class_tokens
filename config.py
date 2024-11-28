@@ -8,12 +8,25 @@ class RunConfig:
     class_index: int
     train: bool
     evaluate: bool
+    experiment: bool = True
+    evaluate_experiment: bool = True
+    experiment_name: str = "EmptionsExpression"
 
     # Id of the experiment
     exp_id: str = "demo"
 
     # Whether to use Stable Diffusion v2.1
     sd_2_1: bool = True
+
+    #  Whether to use ControlNet with Stable Diffusion XL
+    is_controlnet: bool = True
+    diffusion_steps: int = 1    ###
+    controlnet_conditioning_scale = 0.5  # recommended for good generalization
+    controlnet_model_path = "diffusers/controlnet-canny-sdxl-1.0"
+    # controlnet_model_path = "lllyasviel/sd-controlnet-canny"
+    face_model_path = "stabilityai/sdxl-turbo"
+
+    amount: float = 7    # amount of classes for FER
 
     # the classifier (Options: inet (ImageNet), inat (iNaturalist), cub (CUB200))
     classifier: str = "inet"
