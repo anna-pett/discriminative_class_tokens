@@ -1,3 +1,7 @@
+changes in this branch;
+added  ControlNet with Stable Diffusion XL.
+training and evaluating a ControlNet-augmented Stable Diffusion XL model to generate and refine images based on text prompts, with conditional guidance using external image and a classifier.
+
 # Discriminative Class Tokens for Text-to-Image Diffusion Models (ICCV'2023)
 
 This repository contains the code related to our paper *Discriminative Class Tokens for Text-to-Image Diffusion models*.
