@@ -92,11 +92,11 @@ def prepare_stable(config):
         # initialize the models and pipeline
         controlnet = ControlNetModel.from_pretrained(
             "diffusers/controlnet-canny-sdxl-1.0", torch_dtype=torch.float32
-        ).to(device)
+        ).to("cuda")
         # vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float32)
         pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
             "stabilityai/sdxl-turbo", controlnet=controlnet, torch_dtype=torch.float32, num_inference_steps=config.diffusion_steps
-        ).to(device)
+        ).to("cuda")
         pipe.enable_model_cpu_offload()
     else:
         vae = AutoencoderKL.from_pretrained(pretrained_model_name_or_path, subfolder="vae")
