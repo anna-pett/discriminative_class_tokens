@@ -30,6 +30,9 @@ class RunConfig:
 
     # the classifier (Options: inet (ImageNet), inat (iNaturalist), cub (CUB200))
     classifier: str = "inet"
+        # classifier: str = "inet"
+    classifier: str = "ddamfn"    # DDAMFN Classifier
+    ddamfn_classifier_path = "/content/DDAMFN/DDAMFN++/checkpoints_ver2.0/affecnet7_epoch19_acc0.671.pth"
 
     # Affect training time
     early_stopping: int = 15
