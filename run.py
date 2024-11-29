@@ -9,6 +9,7 @@ from diffusers import StableDiffusionPipeline, AutoPipelineForText2Image, Stable
 import prompt_dataset
 import utils
 from inet_classes import IDX2NAME as IDX2NAME_INET
+from ddamfn import IDX2NAME_7 as IDX2NAME_DDAMFN7
 
 from config import RunConfig
 import pyrallis
@@ -19,6 +20,11 @@ def train(config: RunConfig):
     # A range of imagenet classes to run on
     start_class_idx = config.class_index
     stop_class_idx = config.class_index
+
+    # The range of ddamfn classes to run on is 0-6, all facial expressions
+    if config.classifier == "ddamfn":
+        start_class_idx = 1
+        stop_class_idx = 7
 
     # Classification model
     classification_model = utils.prepare_classifier(config)
@@ -32,6 +38,8 @@ def train(config: RunConfig):
 
     if config.classifier == "inet":
         IDX2NAME = IDX2NAME_INET
+    elif config.classifier == "ddamfn":
+        IDX2NAME = IDX2NAME_DDAMFN7
     else:
         IDX2NAME = classification_model.config.id2label
 
@@ -57,7 +65,7 @@ def train(config: RunConfig):
 
         #  Extend tokenizer and add a discriminative token ###
         class_infer = config.class_index - 1
-        prompt_suffix = " ".join(class_name.lower().split("_"))
+        prompt_suffix = " ".join(class_name.lower().split("_")) + " face"
 
         ## Add the placeholder token in tokenizer
         num_added_tokens = tokenizer.add_tokens(config.placeholder_token)
@@ -434,6 +442,8 @@ def evaluate(config: RunConfig):
 
     if config.classifier == "inet":
         IDX2NAME = IDX2NAME_INET
+     elif config.classifier == "ddamfn":
+        IDX2NAME = IDX2NAME_DDAMFN7
     else:
         IDX2NAME = classification_model.config.id2label
 
@@ -467,7 +477,7 @@ def evaluate(config: RunConfig):
         tokens_to_try.append(config.initializer_token)
 
     Path(img_dir_path).mkdir(parents=True, exist_ok=True)
-    prompt_suffix = " ".join(class_name.lower().split("_"))
+    prompt_suffix = " ".join(class_name.lower().split("_")) + " face"
 
     for descriptive_token in tokens_to_try:
         correct = 0
@@ -530,7 +540,4 @@ if __name__ == "__main__":
         train(config)
     if config.evaluate:
         evaluate(config)
-    if config.experiment:
-        run_experiments(config)
-    if config.evaluate_experiment:
-        evaluate_experiments(config)
+
