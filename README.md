@@ -48,7 +48,9 @@ An overview of our method for optimizing a new discriminative token representati
 
 
 To train and evaluate use:
-`python run.py --class_index 283 --train True  --evaluate True`
+`python run.py --class_index 1 --train True  --evaluate True`
+<br>
+class_index values 1-7: 'Neutral', 'Happy', 'Sad', 'Surprise', 'Fear', 'Disgust', 'Angry'
 
 #### Hyperparameters:
 The hyperparameters can be changed in the `config.py` script. Note that the paper results are based on stable-diffusion version 1.4.
