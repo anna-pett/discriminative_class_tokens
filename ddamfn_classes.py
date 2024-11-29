@@ -1,4 +1,4 @@
-IDX2NAME_DDAMFN7 = {
+IDX2NAME_7 = {
         0: "Neutral",
         1: "Happy",
         2: "Sad",
