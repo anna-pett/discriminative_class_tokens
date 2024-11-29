@@ -65,7 +65,9 @@ def train(config: RunConfig):
 
         #  Extend tokenizer and add a discriminative token ###
         class_infer = config.class_index - 1
-        prompt_suffix = " ".join(class_name.lower().split("_")) + " face"
+        prompt_suffix = " ".join(class_name.lower().split("_"))
+        if config.classifier == "ddamfn":
+            prompt_suffix += " face"
 
         ## Add the placeholder token in tokenizer
         num_added_tokens = tokenizer.add_tokens(config.placeholder_token)
@@ -477,7 +479,9 @@ def evaluate(config: RunConfig):
         tokens_to_try.append(config.initializer_token)
 
     Path(img_dir_path).mkdir(parents=True, exist_ok=True)
-    prompt_suffix = " ".join(class_name.lower().split("_")) + " face"
+    prompt_suffix = " ".join(class_name.lower().split("_"))
+    if config.classifier == "ddamfn":
+        prompt_suffix += " face"
 
     for descriptive_token in tokens_to_try:
         correct = 0
