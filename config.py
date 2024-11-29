@@ -15,7 +15,7 @@ class RunConfig:
     # Whether to use Stable Diffusion v2.1
     sd_2_1: bool = True
 
-    #  Whether to use ControlNet with Stable Diffusion XL instead of StableDiffusionPipeline
+    # Whether to use ControlNet with Stable Diffusion XL instead of StableDiffusionPipeline
     is_controlnet: bool = True
     diffusion_steps: int = 1    ###
     controlnet_conditioning_scale = 0.5  # recommended for good generalization
