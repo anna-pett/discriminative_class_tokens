@@ -91,13 +91,14 @@ def prepare_stable(config):
     if config.is_controlnet:
         # initialize the models and pipeline
         controlnet = ControlNetModel.from_pretrained(
-            "diffusers/controlnet-canny-sdxl-1.0", torch_dtype=torch.float32
+            config.controlnet_model_path, torch_dtype=torch.float32
         ).to("cuda")
         # vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float32)
         pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
-            "stabilityai/sdxl-turbo", controlnet=controlnet, torch_dtype=torch.float32, num_inference_steps=config.diffusion_steps
+            config.face_model_path, controlnet=controlnet, torch_dtype=torch.float32, num_inference_steps=config.diffusion_steps
         ).to("cuda")
-        pipe.enable_model_cpu_offload()
+        pipe.enable_model_cpu_offload()    # Enable CPU offloading for memory optimization
+        pipe.enable_gradient_checkpointing()    # Enable gradient checkpointing to save memory
     else:
         vae = AutoencoderKL.from_pretrained(pretrained_model_name_or_path, subfolder="vae")
         pipe = StableDiffusionPipeline.from_pretrained(pretrained_model_name_or_path).to(
