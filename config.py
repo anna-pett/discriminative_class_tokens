@@ -8,9 +8,6 @@ class RunConfig:
     class_index: int
     train: bool
     evaluate: bool
-    experiment: bool = True
-    evaluate_experiment: bool = True
-    experiment_name: str = "EmptionsExpression"
 
     # Id of the experiment
     exp_id: str = "demo"
