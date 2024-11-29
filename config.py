@@ -26,8 +26,6 @@ class RunConfig:
     # controlnet_model_path = "lllyasviel/sd-controlnet-canny"
     face_model_path = "stabilityai/sdxl-turbo"
 
-    amount: float = 7    # amount of classes for FER
-
     # the classifier (Options: inet (ImageNet), inat (iNaturalist), cub (CUB200))
     classifier: str = "inet"
         # classifier: str = "inet"
