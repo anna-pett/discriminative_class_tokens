@@ -9,7 +9,7 @@ from diffusers import StableDiffusionPipeline, AutoPipelineForText2Image, Stable
 import prompt_dataset
 import utils
 from inet_classes import IDX2NAME as IDX2NAME_INET
-from ddamfn import IDX2NAME_7 as IDX2NAME_DDAMFN7
+from ddamfn_classes import IDX2NAME_7 as IDX2NAME_DDAMFN7
 
 from config import RunConfig
 import pyrallis
@@ -23,8 +23,8 @@ def train(config: RunConfig):
 
     # The range of ddamfn classes to run on is 0-6, all facial expressions
     if config.classifier == "ddamfn":
-        start_class_idx = 1
-        stop_class_idx = 7
+        start_class_idx = min(IDX2NAME.keys()) + 1
+        stop_class_idx = max(IDX2NAME.keys()) + 1
 
     # Classification model
     classification_model = utils.prepare_classifier(config)
