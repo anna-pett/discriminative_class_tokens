@@ -1,4 +1,5 @@
 changes in this branch;
+added ddamfn classifier
 added  ControlNet with Stable Diffusion XL.
 training and evaluating a ControlNet-augmented Stable Diffusion XL model to generate and refine images based on text prompts, with conditional guidance using external image and a classifier.
 
