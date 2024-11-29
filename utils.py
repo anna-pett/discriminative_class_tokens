@@ -103,6 +103,8 @@ def prepare_classifier(config):
         # Initialize the model
         model = DDAMNet(num_class=7, pretrained=False)  # Assuming the model has 7 classes
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        if not os.path.exists(config.ddamfn_classifier_path):
+            raise FileNotFoundError(f"DDAMFN checkpoint not found at {self.ddamfn_classifier_path}")
         checkpoint = torch.load(config.ddamfn_classifier_path, map_location=device)
         model.load_state_dict(checkpoint['model_state_dict'])
         model.to(device)
